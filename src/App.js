@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import OpenAI from 'openai';
 import axios from 'axios';
 import './App.css';
@@ -10,11 +10,21 @@ function App() {
   const [chatInput, setChatInput] = useState('');
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const openai = new OpenAI({
     apiKey: process.env.REACT_APP_OPENAI_API_KEY,
     dangerouslyAllowBrowser: true
   });
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    const messagesContainer = document.querySelector('.messages-container');
+    if (messagesContainer) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+  }, [messages, isTyping]);
 
   const searchLyrics = async () => {
     try {
@@ -57,9 +67,11 @@ function App() {
     if (!chatInput.trim() || !lyrics) return;
 
     try {
-      setLoading(true);
       const newMessages = [...messages, { role: 'user', content: chatInput }];
-      
+      setMessages(newMessages);
+      setChatInput('');
+      setIsTyping(true);
+
       const completion = await openai.chat.completions.create({
         model: "gpt-4-1106-preview",
         messages: [
@@ -72,15 +84,61 @@ function App() {
       });
 
       const response = completion.choices[0].message;
-      setMessages([...newMessages, response]);
-      setChatInput('');
+      
+      // Add a small delay to make the typing animation more noticeable
+      setTimeout(() => {
+        setIsTyping(false);
+        setMessages([...newMessages, response]);
+      }, 1000);
+
     } catch (error) {
       console.error('Error chatting:', error);
+      setIsTyping(false);
       setMessages([...messages, { role: 'assistant', content: 'Sorry, there was an error. Please try again.' }]);
-    } finally {
-      setLoading(false);
     }
   };
+
+  const openModal = () => {
+    setShowModal(true);
+  };
+
+  const closeModal = (e) => {
+    if (e.target === e.currentTarget) {
+      setShowModal(false);
+    }
+  };
+
+  // Typing indicator component
+  const TypingIndicator = () => (
+    <div className="typing-indicator">
+      <div className="typing-bubble">
+        <div className="typing-dots">
+          <div className="typing-dot"></div>
+          <div className="typing-dot"></div>
+          <div className="typing-dot"></div>
+        </div>
+        <span className="typing-text">Luzia is thinking...</span>
+      </div>
+    </div>
+  );
+
+  // Modal component
+  const ArtworkModal = () => (
+    showModal && songInfo?.artwork && (
+      <div className="modal-overlay" onClick={closeModal}>
+        <div className="modal-content">
+          <button className="modal-close" onClick={() => setShowModal(false)}>
+            ×
+          </button>
+          <img 
+            src={songInfo.artwork} 
+            alt={`${songInfo.title} by ${songInfo.artist}`}
+            className="modal-image"
+          />
+        </div>
+      </div>
+    )
+  );
 
   return (
     <div className="app-container">
@@ -116,6 +174,8 @@ function App() {
               src={songInfo.artwork} 
               alt="Album artwork" 
               className="song-artwork"
+              onClick={openModal}
+              title="Click to view full size"
             />
           )}
           <div className="song-details">
@@ -141,10 +201,11 @@ function App() {
               placeholder="Ask Luzia about the lyrics, meaning, themes, or anything else..."
               className="chat-input"
               onKeyPress={(e) => e.key === 'Enter' && chat()}
+              disabled={isTyping}
             />
             <button 
               onClick={chat}
-              disabled={loading}
+              disabled={isTyping || !chatInput.trim()}
               className="chat-btn"
             >
               💬 Send
@@ -156,6 +217,7 @@ function App() {
               <div 
                 key={index}
                 className={`message ${msg.role === 'user' ? 'message-user' : 'message-assistant'}`}
+                style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className="message-bubble">
                   {msg.role === 'assistant' && <div className="message-author">🎼 Luzia</div>}
@@ -164,6 +226,7 @@ function App() {
                 </div>
               </div>
             ))}
+            {isTyping && <TypingIndicator />}
           </div>
         </section>
       )}
@@ -172,10 +235,12 @@ function App() {
         <div className="loading-container">
           <div className="loading-spinner"></div>
           <div className="loading-text">
-            {lyrics ? 'Luzia is thinking...' : 'Searching for lyrics...'}
+            Searching for lyrics...
           </div>
         </div>
       )}
+
+      <ArtworkModal />
     </div>
   );
 }

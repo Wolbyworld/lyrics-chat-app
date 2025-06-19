@@ -122,7 +122,7 @@ function App() {
     </div>
   );
 
-  // Modal component
+  // Enhanced Modal component
   const ArtworkModal = () => (
     showModal && songInfo?.artwork && (
       <div className="modal-overlay" onClick={closeModal}>
@@ -135,6 +135,10 @@ function App() {
             alt={`${songInfo.title} by ${songInfo.artist}`}
             className="modal-image"
           />
+          <div className="modal-info">
+            <div className="modal-title">{songInfo.title}</div>
+            <div className="modal-artist">by {songInfo.artist}</div>
+          </div>
         </div>
       </div>
     )
@@ -215,9 +219,8 @@ function App() {
           <div className="messages-container">
             {messages.map((msg, index) => (
               <div 
-                key={index}
+                key={`${index}-${msg.role}`}
                 className={`message ${msg.role === 'user' ? 'message-user' : 'message-assistant'}`}
-                style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className="message-bubble">
                   {msg.role === 'assistant' && <div className="message-author">🎼 Luzia</div>}

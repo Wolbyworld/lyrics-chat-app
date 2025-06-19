@@ -234,15 +234,17 @@ body {
 
 .message {
   margin-bottom: 15px;
-  animation: messageSlideIn 0.4s ease-out;
+  animation: messageSlideIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   animation-fill-mode: both;
+  transform-origin: bottom;
 }
 
 .message:nth-child(1) { animation-delay: 0s; }
-.message:nth-child(2) { animation-delay: 0.1s; }
-.message:nth-child(3) { animation-delay: 0.2s; }
-.message:nth-child(4) { animation-delay: 0.3s; }
-.message:nth-child(5) { animation-delay: 0.4s; }
+.message:nth-child(2) { animation-delay: 0.15s; }
+.message:nth-child(3) { animation-delay: 0.3s; }
+.message:nth-child(4) { animation-delay: 0.45s; }
+.message:nth-child(5) { animation-delay: 0.6s; }
+.message:nth-child(n+6) { animation-delay: 0.75s; }
 
 .message-user {
   display: flex;
@@ -256,6 +258,8 @@ body {
   padding: 12px 18px;
   max-width: 70%;
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  transform-origin: bottom right;
+  animation: userMessagePop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 .message-assistant {
@@ -264,12 +268,15 @@ body {
 }
 
 .message-assistant .message-bubble {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   color: #333;
   border-radius: 18px 18px 18px 4px;
   padding: 12px 18px;
   max-width: 70%;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transform-origin: bottom left;
+  animation: assistantMessageSlide 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  border: 1px solid rgba(102, 126, 234, 0.1);
 }
 
 .message-author {
@@ -363,35 +370,38 @@ body {
   }
 }
 
-/* Typing Indicator */
+/* Enhanced Typing Indicator */
 .typing-indicator {
   display: flex;
   justify-content: flex-start;
   margin-bottom: 15px;
-  animation: fadeIn 0.3s ease-out;
+  animation: typingFadeIn 0.4s ease-out;
 }
 
 .typing-bubble {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 18px 18px 18px 4px;
-  padding: 12px 18px;
+  padding: 16px 20px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  animation: typingPulse 2s ease-in-out infinite;
 }
 
 .typing-dots {
   display: flex;
-  gap: 4px;
+  gap: 6px;
 }
 
 .typing-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: #667eea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   animation: typingBounce 1.4s infinite ease-in-out;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
 }
 
 .typing-dot:nth-child(1) { animation-delay: -0.32s; }
@@ -399,108 +409,203 @@ body {
 .typing-dot:nth-child(3) { animation-delay: 0s; }
 
 .typing-text {
-  color: #667eea;
-  font-weight: 500;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 600;
   font-size: 0.9rem;
 }
 
-/* Modal for full-size artwork */
+/* Enhanced Modal */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(20px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  animation: fadeIn 0.3s ease-out;
+  animation: modalFadeIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   cursor: pointer;
+  padding: 20px;
 }
 
 .modal-content {
   max-width: 90vw;
   max-height: 90vh;
   position: relative;
-  animation: modalZoomIn 0.3s ease-out;
+  animation: modalZoomIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 .modal-image {
   width: 100%;
   height: 100%;
+  max-width: 600px;
+  max-height: 600px;
   object-fit: contain;
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border-radius: 20px;
+  box-shadow: 
+    0 25px 80px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.modal-image:hover {
+  transform: scale(1.02);
 }
 
 .modal-close {
   position: absolute;
-  top: -15px;
-  right: -15px;
-  width: 40px;
-  height: 40px;
+  top: -20px;
+  right: -20px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
-  border: none;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 24px;
   font-weight: bold;
   color: #333;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  transition: all 0.2s ease;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  z-index: 1001;
 }
 
 .modal-close:hover {
   background: white;
-  transform: scale(1.1);
+  transform: scale(1.15) rotate(90deg);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+}
+
+.modal-info {
+  position: absolute;
+  bottom: -60px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.9);
+  animation: modalInfoSlide 0.6s ease-out 0.3s both;
+}
+
+.modal-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.modal-artist {
+  font-size: 1rem;
+  opacity: 0.8;
 }
 
 /* Enhanced Animations */
 @keyframes messageSlideIn {
   from {
     opacity: 0;
-    transform: translateY(20px) scale(0.95);
+    transform: translateY(30px) scale(0.9) rotateX(15deg);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0) scale(1) rotateX(0deg);
+  }
+}
+
+@keyframes userMessagePop {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(20px);
+  }
+  50% {
+    transform: scale(1.05) translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes assistantMessageSlide {
+  from {
+    opacity: 0;
+    transform: translateX(-30px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes typingFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes typingPulse {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
   }
 }
 
 @keyframes typingBounce {
   0%, 80%, 100% {
-    transform: scale(0.8);
-    opacity: 0.5;
+    transform: scale(0.7) translateY(0);
+    opacity: 0.6;
   }
   40% {
-    transform: scale(1);
+    transform: scale(1.2) translateY(-8px);
     opacity: 1;
   }
 }
 
-@keyframes fadeIn {
+@keyframes modalFadeIn {
   from {
     opacity: 0;
+    backdrop-filter: blur(0px);
   }
   to {
     opacity: 1;
+    backdrop-filter: blur(20px);
   }
 }
 
 @keyframes modalZoomIn {
   from {
     opacity: 0;
-    transform: scale(0.8);
+    transform: scale(0.5) rotate(-5deg);
   }
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes modalInfoSlide {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

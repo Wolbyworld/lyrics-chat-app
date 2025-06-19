@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import OpenAI from 'openai';
 import axios from 'axios';
+import './App.css';
 
 function App() {
   const [songQuery, setSongQuery] = useState('');
@@ -82,81 +83,99 @@ function App() {
   };
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
-      <h1>Lyrics Chat</h1>
+    <div className="app-container">
+      <header className="app-header">
+        <h1 className="app-title">🎵 Lyrics Chat</h1>
+        <p className="app-subtitle">Discover song lyrics and chat with Luzia, your AI music expert</p>
+      </header>
       
-      <div style={{ marginBottom: '20px' }}>
-        <input
-          type="text"
-          value={songQuery}
-          onChange={(e) => setSongQuery(e.target.value)}
-          placeholder="Enter song name (e.g., 'Imagine', 'Hello')"
-          style={{ width: '70%', padding: '8px' }}
-          onKeyPress={(e) => e.key === 'Enter' && searchLyrics()}
-        />
-        <button 
-          onClick={searchLyrics}
-          disabled={loading}
-          style={{ marginLeft: '10px', padding: '8px' }}
-        >
-          Search
-        </button>
-      </div>
+      <section className="search-section">
+        <div className="search-container">
+          <input
+            type="text"
+            value={songQuery}
+            onChange={(e) => setSongQuery(e.target.value)}
+            placeholder="Enter song name (e.g., 'Imagine', 'Hello', 'Bohemian Rhapsody')"
+            className="search-input"
+            onKeyPress={(e) => e.key === 'Enter' && searchLyrics()}
+          />
+          <button 
+            onClick={searchLyrics}
+            disabled={loading}
+            className="search-btn"
+          >
+            🔍 Search
+          </button>
+        </div>
+      </section>
 
       {songInfo && (
-        <div style={{ marginBottom: '20px', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}>
-          <h3>{songInfo.title} - {songInfo.artist}</h3>
+        <div className="song-info-card">
           {songInfo.artwork && (
-            <img src={songInfo.artwork} alt="Album artwork" style={{ width: '100px', height: '100px', marginBottom: '10px' }} />
+            <img 
+              src={songInfo.artwork} 
+              alt="Album artwork" 
+              className="song-artwork"
+            />
           )}
+          <div className="song-details">
+            <h3>{songInfo.title}</h3>
+            <p className="artist">by {songInfo.artist}</p>
+          </div>
         </div>
       )}
 
       {lyrics && (
-        <div style={{ whiteSpace: 'pre-wrap', marginBottom: '20px', padding: '10px', border: '1px solid #ccc', borderRadius: '5px', maxHeight: '300px', overflowY: 'auto' }}>
+        <div className="lyrics-container">
           {lyrics}
         </div>
       )}
 
       {lyrics && (
-        <div>
-          <div style={{ marginBottom: '20px' }}>
+        <section className="chat-section">
+          <div className="chat-input-container">
             <input
               type="text"
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
-              placeholder="Ask Luzia about the lyrics..."
-              style={{ width: '70%', padding: '8px' }}
+              placeholder="Ask Luzia about the lyrics, meaning, themes, or anything else..."
+              className="chat-input"
               onKeyPress={(e) => e.key === 'Enter' && chat()}
             />
             <button 
               onClick={chat}
               disabled={loading}
-              style={{ marginLeft: '10px', padding: '8px' }}
+              className="chat-btn"
             >
-              Send
+              💬 Send
             </button>
           </div>
 
-          <div style={{ marginTop: '20px' }}>
+          <div className="messages-container">
             {messages.map((msg, index) => (
               <div 
                 key={index}
-                style={{
-                  marginBottom: '10px',
-                  padding: '10px',
-                  backgroundColor: msg.role === 'user' ? '#e3f2fd' : '#f5f5f5',
-                  borderRadius: '5px'
-                }}
+                className={`message ${msg.role === 'user' ? 'message-user' : 'message-assistant'}`}
               >
-                <strong>{msg.role === 'user' ? 'You' : 'Luzia'}:</strong> {msg.content}
+                <div className="message-bubble">
+                  {msg.role === 'assistant' && <div className="message-author">🎼 Luzia</div>}
+                  {msg.role === 'user' && <div className="message-author">You</div>}
+                  <div>{msg.content}</div>
+                </div>
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
-      {loading && <div style={{ textAlign: 'center', padding: '20px' }}>Loading...</div>}
+      {loading && (
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <div className="loading-text">
+            {lyrics ? 'Luzia is thinking...' : 'Searching for lyrics...'}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
